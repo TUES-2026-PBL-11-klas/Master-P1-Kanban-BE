@@ -25,23 +25,26 @@ public class KanbanServiceImplementation implements KanbanService {
     }
 
     @Override
-    public Task getTaskByIndex(long index) {
-        return null;
+    public Task getTaskByIndex(int index) {
+        return kanbanRepo.findById(index).orElse(null);
     }
 
     @Override
     public Task updateTask(Task task) {
-        return null;
+        return kanbanRepo.save(task);
     }
 
     @Override
-    public Task deleteTask(Task task) {
-        return null;
+    public String deleteTask(Task task) {
+        task.setDeleted(true);
+        kanbanRepo.save(task);
+        // kanbanRepo.delete(task);
+        return "Task deleted successfully with index: " + task.getIndex();
     }
 
     @Override
     public Task addTask(Task task) {
-        return null;
+        return kanbanRepo.save(task);
     }
 
     @Override
