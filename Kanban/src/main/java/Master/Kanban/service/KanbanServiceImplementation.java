@@ -26,7 +26,11 @@ public class KanbanServiceImplementation implements KanbanService {
 
     @Override
     public Task getTaskByIndex(int index) {
-        return kanbanRepo.findById(index).orElse(null);
+        Task t = kanbanRepo.findById(index).orElse(null);
+        if (t != null && t.isDeleted()) {
+            return null;
+        }
+        return t;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class KanbanServiceImplementation implements KanbanService {
         return kanbanRepo
                 .findAll()
                 .stream()
-                .filter(t -> t.getState() == state && t.getUsrAuthT() == usrAuthT)
+                .filter(t -> t.getState() == state && t.getUsrAuthT() == usrAuthT && !t.isDeleted())
                 .toList();
     }
 }
