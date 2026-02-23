@@ -1,3 +1,11 @@
 spring:
   application:
     name: Kanban
+## Below is the code to connect the database container using env vars
+#  datasource:
+#    url: jdbc:postgresql://${env.POSTGRESQL_CONTAINER}:5432/${env.POSTGRESQL_DATABASE}
+#    username: ${env.POSTGRESQL_USERNAME}
+#    password: ${env.POSTGRESQL_PASSWORD}
+#  jpa:
+#    hibernate:
+#      ddl-auto: update

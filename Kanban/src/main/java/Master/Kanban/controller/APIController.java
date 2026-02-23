@@ -10,9 +10,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/v1/")
 public class APIController {
 
+//    @GetMapping("/hello")
+//    public ResponseEntity<String> hello(){
+//        return new ResponseEntity<String>("Hello World", HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/name")
+//    public ResponseEntity<String> name(@RequestParam(value = "name", defaultValue = "Iveto") String username) {
+//        String message = "Hello " + username + "!";
+//        return new ResponseEntity<String>(message, HttpStatus.OK);
+//    }
+{}
     private final List<Task> tasks = List.of(
         new Task(
             1,
@@ -46,7 +57,7 @@ public class APIController {
         )
     );
 
-    @GetMapping
+    @GetMapping("/tasks")
     public ResponseEntity<List<Task>> getTasksRange(
         @RequestParam int from,
         @RequestParam int to
@@ -57,7 +68,7 @@ public class APIController {
 
         List<Task> result = tasks
             .stream()
-            .filter(t -> t.index() >= from && t.index() <= to)
+            .filter(t -> t.getIndex() >= from && t.getIndex() <= to)
             .toList();
 
         return ResponseEntity.ok(result);
