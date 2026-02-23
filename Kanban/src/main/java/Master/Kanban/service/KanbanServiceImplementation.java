@@ -48,7 +48,11 @@ public class KanbanServiceImplementation implements KanbanService {
     }
 
     @Override
-    public List<Task> findByState(int state) {
-        return List.of();
+    public List<Task> findByState(int state, long usrAuthT) {
+        return kanbanRepo
+                .findAll()
+                .stream()
+                .filter(t -> t.getState() == state && t.getUsrAuthT() == usrAuthT)
+                .toList();
     }
 }

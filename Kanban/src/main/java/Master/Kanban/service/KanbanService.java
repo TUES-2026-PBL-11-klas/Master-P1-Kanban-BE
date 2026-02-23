@@ -10,5 +10,5 @@ public interface KanbanService {
     Task updateTask(Task task);
     String deleteTask(Task task);
     Task addTask(Task task);
-    List<Task> findByState(int state);
+    List<Task> findByState(int state, long usrAuthT);
 }
