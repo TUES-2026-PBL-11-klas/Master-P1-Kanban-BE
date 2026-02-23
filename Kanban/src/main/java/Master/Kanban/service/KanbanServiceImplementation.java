@@ -1,6 +1,7 @@
 package Master.Kanban.service;
 
 import Master.Kanban.model.Task;
+import Master.Kanban.repository.KanbanRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,9 +9,19 @@ import java.util.List;
 @Service
 public class KanbanServiceImplementation implements KanbanService {
 
+    private final KanbanRepository kanbanRepo;
+
+    public KanbanServiceImplementation(KanbanRepository kanbanRepo) {
+        this.kanbanRepo = kanbanRepo;
+    }
+
     @Override
     public List<Task> getAllUserTasks(long UsrAuthT) {
-        return List.of();
+        return kanbanRepo
+                .findAll()
+                .stream()
+                .filter(t -> t.getUsrAuthT() == UsrAuthT && !t.isDeleted())
+                .toList();
     }
 
     @Override

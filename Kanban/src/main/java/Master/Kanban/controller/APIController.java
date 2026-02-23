@@ -23,7 +23,7 @@ public class APIController {
 //        String message = "Hello " + username + "!";
 //        return new ResponseEntity<String>(message, HttpStatus.OK);
 //    }
-{}
+
     private final List<Task> tasks = List.of(
         new Task(
             1,
