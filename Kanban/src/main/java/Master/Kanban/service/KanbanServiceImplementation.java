@@ -20,7 +20,7 @@ public class KanbanServiceImplementation implements KanbanService {
         return kanbanRepo
                 .findAll()
                 .stream()
-                .filter(t -> t.getUsrAuthT() == UsrAuthT && !t.isDeleted())
+                .filter(t -> t.getUserToken().getToken() == UsrAuthT && !t.isDeleted())
                 .toList();
     }
 
@@ -56,7 +56,7 @@ public class KanbanServiceImplementation implements KanbanService {
         return kanbanRepo
                 .findAll()
                 .stream()
-                .filter(t -> t.getState() == state && t.getUsrAuthT() == usrAuthT && !t.isDeleted())
+                .filter(t -> t.getState().getId() == state && t.getUserToken().getToken() == usrAuthT && !t.isDeleted())
                 .toList();
     }
 }

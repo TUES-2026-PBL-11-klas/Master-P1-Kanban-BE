@@ -15,10 +15,10 @@ import java.util.List;
 public class State {
     @Id
     @Column(name = "Id")
-    private String token;
+    private int id;
 
     @Column(name = "Name")
-    private String username;
+    private String name;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Task> tasks;

@@ -16,7 +16,7 @@ import java.util.Map;
 public class User {
     @Id
     @Column(name = "Token", nullable = false)
-    private String token;
+    private long token;
 
     @Column(name = "Username")
     private String username;
