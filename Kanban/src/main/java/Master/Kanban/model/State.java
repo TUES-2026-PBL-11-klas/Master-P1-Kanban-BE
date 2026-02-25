@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "states")
 public class State {
     @Id
     @Column(name = "Id")
@@ -20,6 +20,6 @@ public class State {
     @Column(name = "Name")
     private String name;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "state", fetch = FetchType.LAZY)
     private List<Task> tasks;
 }
