@@ -1,76 +1,59 @@
 package Master.Kanban.controller;
 
 import Master.Kanban.model.Task;
+import Master.Kanban.service.KanbanService;
 import java.util.List;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/tasks")
 public class APIController {
 
-//    @GetMapping("/hello")
-//    public ResponseEntity<String> hello(){
-//        return new ResponseEntity<String>("Hello World", HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/name")
-//    public ResponseEntity<String> name(@RequestParam(value = "name", defaultValue = "Iveto") String username) {
-//        String message = "Hello " + username + "!";
-//        return new ResponseEntity<String>(message, HttpStatus.OK);
-//    }
-{}
-    private final List<Task> tasks = List.of(
-        new Task(
-            1,
-            101,
-            false,
-            "Fix API",
-            "Implement the controller",
-            1,
-            0,
-            "2026-02-20"
-        ),
-        new Task(
-            2,
-            102,
-            false,
-            "Write Docs",
-            "Explain the uint logic",
-            2,
-            1,
-            "2026-02-21"
-        ),
-        new Task(
-            3,
-            103,
-            false,
-            "Test API",
-            "Verify 400 Bad Request works",
-            3,
-            0,
-            "2026-02-22"
-        )
-    );
+    private final KanbanService kanbanService;
 
-    @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getTasksRange(
-        @RequestParam int from,
-        @RequestParam int to
-    ) {
-        if (from < 1 || to > tasks.size() || from > to) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public APIController(KanbanService kanbanService) {
+        this.kanbanService = kanbanService;
+    }
+
+    @GetMapping("/user/{usrAuthT}")
+    public List<Task> getAllTasks(@PathVariable long usrAuthT) {
+        return kanbanService.getAllUserTasks(usrAuthT);
+    }
+
+    @GetMapping("/{index}")
+    public ResponseEntity<Task> getTask(@PathVariable int index) {
+        Task task = kanbanService.getTaskByIndex(index);
+        return task != null
+            ? ResponseEntity.ok(task)
+            : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping
+    public Task addTask(@RequestBody Task task) {
+        return kanbanService.addTask(task);
+    }
+
+    @PutMapping
+    public Task updateTask(@RequestBody Task task) {
+        return kanbanService.updateTask(task);
+    }
+
+    @DeleteMapping("/{index}")
+    public ResponseEntity<String> deleteTask(@PathVariable int index) {
+        Task task = kanbanService.getTaskByIndex(index);
+        if (task == null) {
+            return ResponseEntity.notFound().build();
         }
+        String message = kanbanService.deleteTask(task);
+        return ResponseEntity.ok(message);
+    }
 
-        List<Task> result = tasks
-            .stream()
-            .filter(t -> t.getIndex() >= from && t.getIndex() <= to)
-            .toList();
-
-        return ResponseEntity.ok(result);
+    @GetMapping("/user/{usrAuthT}/state/{state}")
+    public List<Task> getTasksByState(
+        @PathVariable int state,
+        @PathVariable long usrAuthT
+    ) {
+        return kanbanService.findByState(state, usrAuthT);
     }
 }

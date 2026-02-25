@@ -1,6 +1,7 @@
 package Master.Kanban.service;
 
 import Master.Kanban.model.Task;
+import Master.Kanban.repository.KanbanRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,33 +9,54 @@ import java.util.List;
 @Service
 public class KanbanServiceImplementation implements KanbanService {
 
-    @Override
-    public List<Task> getAllUserTasks(long UsrAuthT) {
-        return List.of();
+    private final KanbanRepository kanbanRepo;
+
+    public KanbanServiceImplementation(KanbanRepository kanbanRepo) {
+        this.kanbanRepo = kanbanRepo;
     }
 
     @Override
-    public Task getTaskByIndex(long index) {
-        return null;
+    public List<Task> getAllUserTasks(long UsrAuthT) {
+        return kanbanRepo
+                .findAll()
+                .stream()
+                .filter(t -> t.getUserToken().getToken() == UsrAuthT && !t.isDeleted())
+                .toList();
+    }
+
+    @Override
+    public Task getTaskByIndex(int index) {
+        Task t = kanbanRepo.findById(index).orElse(null);
+        if (t != null && t.isDeleted()) {
+            return null;
+        }
+        return t;
     }
 
     @Override
     public Task updateTask(Task task) {
-        return null;
+        return kanbanRepo.save(task);
     }
 
     @Override
-    public Task deleteTask(Task task) {
-        return null;
+    public String deleteTask(Task task) {
+        task.setDeleted(true);
+        kanbanRepo.save(task);
+        // kanbanRepo.delete(task);
+        return "Task deleted successfully with index: " + task.getIndex();
     }
 
     @Override
     public Task addTask(Task task) {
-        return null;
+        return kanbanRepo.save(task);
     }
 
     @Override
-    public List<Task> findByState(int state) {
-        return List.of();
+    public List<Task> findByState(int state, long usrAuthT) {
+        return kanbanRepo
+                .findAll()
+                .stream()
+                .filter(t -> t.getState().getId() == state && t.getUserToken().getToken() == usrAuthT && !t.isDeleted())
+                .toList();
     }
 }

@@ -1,0 +1,16 @@
+[Unit]
+Description=Kanban Spring Boot Service
+After=network.target
+
+[Service]
+User={{USER}}
+WorkingDirectory={{WORKDIR}}
+#.env is in the same folder as setup.sh,
+EnvironmentFile={{WORKDIR}}/.env
+ExecStart=/usr/bin/java -jar {{WORKDIR}}/../target/kanban-app.jar
+SuccessExitStatus=143 #springboot shutdown hook, don't change
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
