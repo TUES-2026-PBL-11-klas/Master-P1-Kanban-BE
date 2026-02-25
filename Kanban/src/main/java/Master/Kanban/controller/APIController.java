@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/v1/tasks")
 public class APIController {
 
     private final KanbanService kanbanService;
@@ -49,7 +49,7 @@ public class APIController {
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/state/{state}/user/{usrAuthT}")
+    @GetMapping("/user/{usrAuthT}/state/{state}")
     public List<Task> getTasksByState(
         @PathVariable int state,
         @PathVariable long usrAuthT

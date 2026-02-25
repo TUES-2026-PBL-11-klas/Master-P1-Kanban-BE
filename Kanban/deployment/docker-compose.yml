@@ -1,7 +1,7 @@
 services:
   postgres-db:
     image: postgres:latest
-    container_name: kanban-postgres
+    container_name: ${POSTGRESQL_CONTAINER}
     environment:
       - POSTGRES_DB=${POSTGRESQL_DATABASE}
       - POSTGRES_USER=${POSTGRESQL_USERNAME}
