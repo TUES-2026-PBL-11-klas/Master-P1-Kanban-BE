@@ -15,11 +15,12 @@ import java.util.Map;
 @Table(name = "users")
 public class User {
     @Id
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "Token", nullable = false)
-    private Map<String, > token;
-//     Map<Integer, AnotherEntity> correctRelationship;
+    @Column(name = "Token", nullable = false)
+    private String token;
 
     @Column(name = "Username")
     private String username;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Task> tasks;
 }

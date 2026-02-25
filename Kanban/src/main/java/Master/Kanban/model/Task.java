@@ -33,7 +33,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.EAGER)//probably best to ask if this is the best decisicion
     @JoinColumn(name = "State", nullable = false)
-    private int state;
+    private State state;
 
     @Column(name = "Time", nullable = false)
     private String tszImplement; //not implemented
