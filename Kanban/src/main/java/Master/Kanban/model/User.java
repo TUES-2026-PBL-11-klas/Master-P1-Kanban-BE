@@ -1,12 +1,10 @@
 package Master.Kanban.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-import java.util.Map;
 
 @Entity
 @Data
@@ -14,6 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
+
     @Id
     @Column(name = "Token", nullable = false)
     private long token;
