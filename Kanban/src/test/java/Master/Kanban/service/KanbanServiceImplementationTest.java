@@ -3,7 +3,9 @@ package Master.Kanban.service;
 import Master.Kanban.model.Task;
 import Master.Kanban.model.State;
 import Master.Kanban.model.User;
+import Master.Kanban.repository.StateRepository;
 import Master.Kanban.repository.TaskRepository;
+import Master.Kanban.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,39 +22,45 @@ import static org.mockito.Mockito.*;
 class KanbanServiceImplementationTest {
 
     @Mock
-    private TaskRepository kanbanRepo;
+    private TaskRepository taskRepo;
+
+    @Mock
+    private UserRepository userRepo;
+
+    @Mock
+    private StateRepository stateRepo;
 
     @InjectMocks
     private KanbanServiceImplementation kanbanService;
 
     // getAllUserTasks
     @Test
-    void shouldReturnOnlyTasksForUserAndNotDeleted() {
+    void shouldReturnOnlyTasksForUser() {
         User user1 = new User();
-        user1.setToken(100);
+        user1.setId(100L);
 
         User user2 = new User();
-        user2.setToken(200);
+        user2.setId(200L);
 
         Task t1 = new Task();
-        t1.setUserToken(user1);
+        t1.setUser(user1);
         t1.setDeleted(false);
 
-        Task t2 = new Task();
-        t2.setUserToken(user1);
-        t2.setDeleted(true);
-
-        Task t3 = new Task();
-        t3.setUserToken(user2);
-        t3.setDeleted(false);
+//        Task t2 = new Task();
+//        t2.setUser(user1);
+//        t2.setDeleted(true);
+//
+//        Task t3 = new Task();
+//        t3.setUser(user2);
+//        t3.setDeleted(false);
 
         Task t4 = new Task();
-        t4.setUserToken(user1);
+        t4.setUser(user1);
         t4.setDeleted(false);
 
-        when(kanbanRepo.findAll()).thenReturn(List.of(t1, t2, t3, t4));
+        when(taskRepo.findByUserIdAndDeletedFalse(100L)).thenReturn(List.of(t1, t4));
 
-        List<Task> result = kanbanService.getAllUserTasks(100);
+        List<Task> result = kanbanService.getAllUserTasks(100L);
 
         assertEquals(2, result.size());
         assertTrue(result.contains(t1));
@@ -61,36 +69,37 @@ class KanbanServiceImplementationTest {
 
     // getTaskByIndex
     @Test
-    void shouldReturnTaskIfExistsAndNotDeleted() {
+    void shouldReturnOptionalTaskIfExistsAndNotDeleted() {
         Task task = new Task();
         task.setDeleted(false);
 
-        when(kanbanRepo.findById(1)).thenReturn(Optional.of(task));
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(task));
 
-        Task result = kanbanService.getTaskById(1);
+        Optional<Task> result = kanbanService.getTaskById(1L);
 
-        assertNotNull(result);
+        assertTrue(result.isPresent());
+        assertEquals(task, result.get());
     }
 
     @Test
-    void shouldReturnNullIfTaskDeleted() {
+    void shouldReturnEmptyOptionalIfTaskDeleted() {
         Task task = new Task();
         task.setDeleted(true);
 
-        when(kanbanRepo.findById(1)).thenReturn(Optional.of(task));
+        when(taskRepo.findById(1L)).thenReturn(Optional.of(task));
 
-        Task result = kanbanService.getTaskById(1);
+        Optional<Task> result = kanbanService.getTaskById(1L);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void shouldReturnNullIfTaskDoesNotExist() {
-        when(kanbanRepo.findById(1)).thenReturn(Optional.empty());
+    void shouldReturnEmptyOptionalIfTaskDoesNotExist() {
+        when(taskRepo.findById(1L)).thenReturn(Optional.empty());
 
-        Task result = kanbanService.getTaskById(1);
+        Optional<Task> result = kanbanService.getTaskById(1L);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 
     // updateTask
@@ -98,44 +107,59 @@ class KanbanServiceImplementationTest {
     void shouldUpdateTask() {
         Task task = new Task();
 
-        when(kanbanRepo.save(task)).thenReturn(task);
+        when(taskRepo.save(task)).thenReturn(task);
 
         Task result = kanbanService.updateTask(task);
 
         assertEquals(task, result);
-        verify(kanbanRepo).save(task);
+        verify(taskRepo).save(task);
     }
 
     // deleteTask (soft delete)
     @Test
     void shouldSoftDeleteTaskAndReturnMessage() {
         Task task = new Task();
-        task.setIndex(5);
+        task.setId(5L);
+        task.setDeleted(false);
 
-        String message = kanbanService.deleteTask(task);
+        when(taskRepo.findById(5L)).thenReturn(Optional.of(task));
+        when(taskRepo.save(task)).thenReturn(task);
+
+        String message = kanbanService.deleteTask(5L);
 
         assertTrue(task.isDeleted());
-        verify(kanbanRepo).save(task);
+        verify(taskRepo).save(task);
         assertTrue(message.contains("5"));
     }
 
     // addTask
     @Test
     void shouldAddTask() {
-        Task task = new Task();
+        User user = new User();
+        user.setId(1L);
 
-        when(kanbanRepo.save(task)).thenReturn(task);
+        State state = new State();
+        state.setId(1);
+
+        Task task = new Task();
+        task.setUser(user);
+        task.setState(state);
+
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        when(stateRepo.findById(1)).thenReturn(Optional.of(state));
+        when(taskRepo.save(task)).thenReturn(task);
 
         Task result = kanbanService.addTask(task);
 
         assertEquals(task, result);
+        verify(taskRepo).save(task);
     }
 
     // findByState
     @Test
-    void shouldReturnTasksByStateUserAndNotDeleted() {
+    void shouldReturnTasksByStateForUser() {
         User user = new User();
-        user.setToken(100);
+        user.setId(100L);
 
         State state1 = new State();
         state1.setId(1);
@@ -144,25 +168,73 @@ class KanbanServiceImplementationTest {
         state2.setId(2);
 
         Task t1 = new Task();
-        t1.setUserToken(user);
+        t1.setUser(user);
         t1.setState(state1);
         t1.setDeleted(false);
 
-        Task t2 = new Task();
-        t2.setUserToken(user);
-        t2.setState(state1);
-        t2.setDeleted(true);
+//        Task t2 = new Task();
+//        t2.setUser(user);
+//        t2.setState(state1);
+//        t2.setDeleted(true);
+//
+//        Task t3 = new Task();
+//        t3.setUser(user);
+//        t3.setState(state2);
+//        t3.setDeleted(false);
 
-        Task t3 = new Task();
-        t3.setUserToken(user);
-        t3.setState(state2);
-        t3.setDeleted(false);
+        when(taskRepo.findByUserIdAndStateIdAndDeletedFalse(100L, 1)).thenReturn(List.of(t1));
 
-        when(kanbanRepo.findAll()).thenReturn(List.of(t1, t2, t3));
-
-        List<Task> result = kanbanService.findByState(1, 100);
+        List<Task> result = kanbanService.getUserTasksByState(1, 100L);
 
         assertEquals(1, result.size());
         assertTrue(result.contains(t1));
+    }
+
+    // createUser
+    @Test
+    void shouldCreateUser() {
+        User user = new User();
+        when(userRepo.save(user)).thenReturn(user);
+
+        User result = kanbanService.createUser(user);
+
+        assertEquals(user, result);
+        verify(userRepo).save(user);
+    }
+
+    // getUserById
+    @Test
+    void shouldReturnUserById() {
+        User user = new User();
+        user.setId(10L);
+
+        when(userRepo.findById(10L)).thenReturn(Optional.of(user));
+
+        Optional<User> result = kanbanService.getUserById(10L);
+
+        assertTrue(result.isPresent());
+        assertEquals(user, result.get());
+    }
+
+    @Test
+    void shouldReturnEmptyIfUserNotFound() {
+        when(userRepo.findById(10L)).thenReturn(Optional.empty());
+
+        Optional<User> result = kanbanService.getUserById(10L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldReturnUserByUsername() {
+        User user = new User();
+        user.setUsername("testuser");
+
+        when(userRepo.findByUsername("testuser")).thenReturn(Optional.of(user));
+
+        Optional<User> result = kanbanService.getUserByUsername("testuser");
+
+        assertTrue(result.isPresent());
+        assertEquals(user, result.get());
     }
 }

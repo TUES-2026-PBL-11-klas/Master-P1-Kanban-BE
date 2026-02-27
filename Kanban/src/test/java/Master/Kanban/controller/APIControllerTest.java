@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,13 +35,13 @@ class APIControllerTest {
     @Test
     void shouldReturnAllTasksForUser() throws Exception {
         User user = new User();
-        user.setToken(100);
+        user.setId(100L);
 
         Task task = new Task();
-        task.setIndex(1);
-        task.setUserToken(user);
+        task.setId(1L);
+        task.setUser(user);
 
-        when(kanbanService.getAllUserTasks(100))
+        when(kanbanService.getAllUserTasks(100L))
                 .thenReturn(List.of(task));
 
         mockMvc.perform(get("/api/v1/tasks/user/100"))
@@ -52,9 +53,9 @@ class APIControllerTest {
     @Test
     void shouldReturnTaskByIndex() throws Exception {
         Task task = new Task();
-        task.setIndex(5);
+        task.setId(5L);
 
-        when(kanbanService.getTaskById(5)).thenReturn(task);
+        when(kanbanService.getTaskById(5L)).thenReturn(Optional.of(task));
 
         mockMvc.perform(get("/api/v1/tasks/5"))
                 .andExpect(status().isOk())
@@ -63,7 +64,7 @@ class APIControllerTest {
 
     @Test
     void shouldReturn404IfTaskNotFound() throws Exception {
-        when(kanbanService.getTaskById(5)).thenReturn(null);
+        when(kanbanService.getTaskById(5L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/tasks/5"))
                 .andExpect(status().isNotFound());
@@ -73,7 +74,7 @@ class APIControllerTest {
     @Test
     void shouldCreateTask() throws Exception {
         Task task = new Task();
-        task.setIndex(10);
+        task.setId(10L);
 
         when(kanbanService.addTask(any(Task.class)))
                 .thenReturn(task);
@@ -89,7 +90,7 @@ class APIControllerTest {
     @Test
     void shouldUpdateTask() throws Exception {
         Task task = new Task();
-        task.setIndex(7);
+        task.setId(7L);
 
         when(kanbanService.updateTask(any(Task.class)))
                 .thenReturn(task);
@@ -105,10 +106,10 @@ class APIControllerTest {
     @Test
     void shouldDeleteTask() throws Exception {
         Task task = new Task();
-        task.setIndex(3);
+        task.setId(3L);
 
-        when(kanbanService.getTaskById(3)).thenReturn(task);
-        when(kanbanService.deleteTask(task))
+        when(kanbanService.getTaskById(3L)).thenReturn(Optional.of(task));
+        when(kanbanService.deleteTask(3L))
                 .thenReturn("deleted");
 
         mockMvc.perform(delete("/api/v1/tasks/3"))
@@ -118,7 +119,7 @@ class APIControllerTest {
 
     @Test
     void shouldReturn404WhenDeletingMissingTask() throws Exception {
-        when(kanbanService.getTaskById(3)).thenReturn(null);
+        when(kanbanService.getTaskById(3L)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/api/v1/tasks/3"))
                 .andExpect(status().isNotFound());
@@ -128,9 +129,9 @@ class APIControllerTest {
     @Test
     void shouldReturnTasksByState() throws Exception {
         Task task = new Task();
-        task.setIndex(1);
+        task.setId(1L);
 
-        when(kanbanService.findByState(1, 100))
+        when(kanbanService.getUserTasksByState(1, 100L))
                 .thenReturn(List.of(task));
 
         mockMvc.perform(get("/api/v1/tasks/user/100/state/1"))
