@@ -1,11 +1,11 @@
 package Master.Kanban.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Data
@@ -13,13 +13,15 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "states")
 public class State {
+
     @Id
-    @Column(name = "Id")
+    @Column(name = "\"Id\"")
     private int id;
 
-    @Column(name = "Name")
+    @Column(name = "\"Name\"")
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "state", fetch = FetchType.LAZY)
     private List<Task> tasks;
 }
