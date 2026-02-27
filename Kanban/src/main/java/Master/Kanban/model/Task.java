@@ -5,36 +5,40 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tasks")
 public class Task {
+
     @Id
-    @Column(name = "Position", nullable = false)
-    private int index;
+    @Column(name = "\"Position\"", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "Token", nullable = false)
-    private User userToken;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "\"Token\"", nullable = false)
+    private User user;
 
-    @Column(name = "Deleted", nullable = false)
+    @Column(name = "\"Deleted\"", nullable = false)
     private boolean deleted;
 
-    @Column(name = "Name")
+    @Column(name = "\"Name\"")
     private String title;
 
-    @Column(name = "Description")
+    @Column(name = "\"Description\"")
     private String desc;
 
-    @Column(name = "Priority", nullable = false)
+    @Column(name = "\"Priority\"", nullable = false)
     private int priority;
 
-    @ManyToOne(fetch = FetchType.EAGER)//probably best to ask if this is the best decisicion
-    @JoinColumn(name = "State", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "\"State\"", nullable = false)
     private State state;
 
-    @Column(name = "Time", nullable = false)
-    private String tszImplement; //not implemented
+    @Column(name = "\"Time\"", nullable = false)
+    private LocalDateTime createdAt;
 }

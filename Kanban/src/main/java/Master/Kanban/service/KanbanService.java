@@ -1,14 +1,22 @@
 package Master.Kanban.service;
 
 import Master.Kanban.model.Task;
+import Master.Kanban.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface KanbanService {
-    List<Task> getAllUserTasks(long UsrAuthT);
-    Task getTaskByIndex(int index);
+    // User
+    User createUser(User user);
+    Optional<User> getUserById(Long id);
+    Optional<User> getUserByUsername(String username);
+
+    // Task
+    List<Task> getAllUserTasks(Long userId);
+    Optional<Task> getTaskById(Long taskId);
     Task updateTask(Task task);
-    String deleteTask(Task task);
+    String deleteTask(Long taskId);
     Task addTask(Task task);
-    List<Task> findByState(int state, long usrAuthT);
+    List<Task> getUserTasksByState(Integer stateId, Long userId);
 }

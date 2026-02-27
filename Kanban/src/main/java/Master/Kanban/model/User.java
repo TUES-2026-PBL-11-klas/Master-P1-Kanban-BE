@@ -1,5 +1,6 @@
 package Master.Kanban.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -14,12 +15,14 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @Column(name = "Token", nullable = false)
-    private long token;
+    @Column(name = "\"Token\"", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "Username")
+    @Column(name = "\"Username\"", nullable = false, unique = true)
     private String username;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Task> tasks;
 }
