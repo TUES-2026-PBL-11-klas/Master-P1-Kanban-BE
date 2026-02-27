@@ -3,7 +3,7 @@ package Master.Kanban.service;
 import Master.Kanban.model.Task;
 import Master.Kanban.model.State;
 import Master.Kanban.model.User;
-import Master.Kanban.repository.KanbanRepository;
+import Master.Kanban.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class KanbanServiceImplementationTest {
 
     @Mock
-    private KanbanRepository kanbanRepo;
+    private TaskRepository kanbanRepo;
 
     @InjectMocks
     private KanbanServiceImplementation kanbanService;
@@ -67,7 +67,7 @@ class KanbanServiceImplementationTest {
 
         when(kanbanRepo.findById(1)).thenReturn(Optional.of(task));
 
-        Task result = kanbanService.getTaskByIndex(1);
+        Task result = kanbanService.getTaskById(1);
 
         assertNotNull(result);
     }
@@ -79,7 +79,7 @@ class KanbanServiceImplementationTest {
 
         when(kanbanRepo.findById(1)).thenReturn(Optional.of(task));
 
-        Task result = kanbanService.getTaskByIndex(1);
+        Task result = kanbanService.getTaskById(1);
 
         assertNull(result);
     }
@@ -88,7 +88,7 @@ class KanbanServiceImplementationTest {
     void shouldReturnNullIfTaskDoesNotExist() {
         when(kanbanRepo.findById(1)).thenReturn(Optional.empty());
 
-        Task result = kanbanService.getTaskByIndex(1);
+        Task result = kanbanService.getTaskById(1);
 
         assertNull(result);
     }

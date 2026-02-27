@@ -1,62 +1,91 @@
 package Master.Kanban.service;
 
+import Master.Kanban.model.State;
 import Master.Kanban.model.Task;
-import Master.Kanban.repository.KanbanRepository;
+import Master.Kanban.model.User;
+import Master.Kanban.repository.StateRepository;
+import Master.Kanban.repository.TaskRepository;
+import Master.Kanban.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class KanbanServiceImplementation implements KanbanService {
 
-    private final KanbanRepository kanbanRepo;
+    private final TaskRepository taskRepo;
+    private final UserRepository userRepo;
+    private final StateRepository stateRepo;
 
-    public KanbanServiceImplementation(KanbanRepository kanbanRepo) {
-        this.kanbanRepo = kanbanRepo;
+    public KanbanServiceImplementation(TaskRepository taskRepo, UserRepository userRepo, StateRepository stateRepo) {
+        this.taskRepo = taskRepo;
+        this.userRepo = userRepo;
+        this.stateRepo = stateRepo;
     }
 
     @Override
-    public List<Task> getAllUserTasks(long UsrAuthT) {
-        return kanbanRepo
-                .findAll()
-                .stream()
-                .filter(t -> t.getUserToken().getToken() == UsrAuthT && !t.isDeleted())
-                .toList();
+    public User createUser(User user) {
+        return userRepo.save(user);
     }
 
     @Override
-    public Task getTaskByIndex(int index) {
-        Task t = kanbanRepo.findById(index).orElse(null);
-        if (t != null && t.isDeleted()) {
-            return null;
+    public Optional<User> getUserById(Long userId) {
+        return userRepo.findById(userId);
+    }
+
+    @Override
+    public Optional<User> getUserByUsername(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public List<Task> getAllUserTasks(Long userId) {
+        return taskRepo.findByUserIdAndDeletedFalse(userId);
+    }
+
+    @Override
+    public Optional<Task> getTaskById(Long taskId) {
+        Optional<Task> t = taskRepo.findById(taskId);
+        if (t.isPresent() && t.get().isDeleted()) {
+            return Optional.empty();
         }
         return t;
     }
 
     @Override
     public Task updateTask(Task task) {
-        return kanbanRepo.save(task);
+        return taskRepo.save(task);
     }
 
     @Override
-    public String deleteTask(Task task) {
+    public String deleteTask(Long taskId) {
+        Optional<Task> taskOpt = taskRepo.findById(taskId);
+        if(taskOpt.isEmpty() || taskOpt.get().isDeleted()) {
+            return "Task not found";
+        }
+        Task task = taskOpt.get();
         task.setDeleted(true);
-        kanbanRepo.save(task);
-        // kanbanRepo.delete(task);
-        return "Task deleted successfully with index: " + task.getIndex();
+        taskRepo.save(task);
+        // taskRepository.delete(task);
+        return "Task deleted successfully with id: " + task.getId();
     }
 
     @Override
     public Task addTask(Task task) {
-        return kanbanRepo.save(task);
+        User user = userRepo.findById(task.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        State state = stateRepo.findById(task.getState().getId())
+                .orElseThrow(() -> new RuntimeException("State not found"));
+
+        task.setUser(user);
+        task.setState(state);
+
+        return taskRepo.save(task);
     }
 
     @Override
-    public List<Task> findByState(int state, long usrAuthT) {
-        return kanbanRepo
-                .findAll()
-                .stream()
-                .filter(t -> t.getState().getId() == state && t.getUserToken().getToken() == usrAuthT && !t.isDeleted())
-                .toList();
+    public List<Task> getUserTasksByState(Integer stateId, Long userId) {
+        return taskRepo.findByUserIdAndStateIdAndDeletedFalse(userId, stateId);
     }
 }

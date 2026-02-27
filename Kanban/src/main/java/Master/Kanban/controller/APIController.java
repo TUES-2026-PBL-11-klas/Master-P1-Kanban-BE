@@ -1,13 +1,14 @@
 package Master.Kanban.controller;
 
 import Master.Kanban.model.Task;
+import Master.Kanban.model.User;
 import Master.Kanban.service.KanbanService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/tasks")
+@RequestMapping("/api/v1")
 public class APIController {
 
     private final KanbanService kanbanService;
@@ -16,44 +17,51 @@ public class APIController {
         this.kanbanService = kanbanService;
     }
 
-    @GetMapping("/user/{usrAuthT}")
-    public List<Task> getAllTasks(@PathVariable long usrAuthT) {
-        return kanbanService.getAllUserTasks(usrAuthT);
+    @GetMapping("/tasks/user/{userId}")
+    public List<Task> getAllTasks(@PathVariable Long userId) {
+        return kanbanService.getAllUserTasks(userId);
     }
 
-    @GetMapping("/{index}")
-    public ResponseEntity<Task> getTask(@PathVariable int index) {
-        Task task = kanbanService.getTaskByIndex(index);
-        return task != null
-            ? ResponseEntity.ok(task)
-            : ResponseEntity.notFound().build();
+    @GetMapping("/tasks/{taskId}")
+    public ResponseEntity<Task> getTask(@PathVariable Long taskId) {
+        return kanbanService.getTaskById(taskId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Task addTask(@RequestBody Task task) {
-        return kanbanService.addTask(task);
+    @PostMapping("/tasks")
+    public ResponseEntity<Task> addTask(@RequestBody Task task) {
+        if(task.getUser() == null || task.getState() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Task savedTask = kanbanService.addTask(task);
+        return ResponseEntity.ok(savedTask);
     }
 
-    @PutMapping
+    @PutMapping("/tasks")
     public Task updateTask(@RequestBody Task task) {
         return kanbanService.updateTask(task);
     }
 
-    @DeleteMapping("/{index}")
-    public ResponseEntity<String> deleteTask(@PathVariable int index) {
-        Task task = kanbanService.getTaskByIndex(index);
-        if (task == null) {
+    @DeleteMapping("/tasks/{taskId}")
+    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
+        String message = kanbanService.deleteTask(taskId);
+        if(message.equals("Task not found")) {
             return ResponseEntity.notFound().build();
         }
-        String message = kanbanService.deleteTask(task);
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/user/{usrAuthT}/state/{state}")
+    @GetMapping("/tasks/user/{userId}/state/{stateId}")
     public List<Task> getTasksByState(
-        @PathVariable int state,
-        @PathVariable long usrAuthT
+            @PathVariable Long userId,
+            @PathVariable Integer stateId
     ) {
-        return kanbanService.findByState(state, usrAuthT);
+        return kanbanService.getUserTasksByState(stateId, userId);
+    }
+
+    @PostMapping("/users")
+    public User createUser(@RequestBody User user) {
+        return kanbanService.createUser(user);
     }
 }

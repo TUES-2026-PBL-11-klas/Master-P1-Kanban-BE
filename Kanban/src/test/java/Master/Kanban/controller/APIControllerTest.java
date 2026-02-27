@@ -54,7 +54,7 @@ class APIControllerTest {
         Task task = new Task();
         task.setIndex(5);
 
-        when(kanbanService.getTaskByIndex(5)).thenReturn(task);
+        when(kanbanService.getTaskById(5)).thenReturn(task);
 
         mockMvc.perform(get("/api/v1/tasks/5"))
                 .andExpect(status().isOk())
@@ -63,7 +63,7 @@ class APIControllerTest {
 
     @Test
     void shouldReturn404IfTaskNotFound() throws Exception {
-        when(kanbanService.getTaskByIndex(5)).thenReturn(null);
+        when(kanbanService.getTaskById(5)).thenReturn(null);
 
         mockMvc.perform(get("/api/v1/tasks/5"))
                 .andExpect(status().isNotFound());
@@ -107,7 +107,7 @@ class APIControllerTest {
         Task task = new Task();
         task.setIndex(3);
 
-        when(kanbanService.getTaskByIndex(3)).thenReturn(task);
+        when(kanbanService.getTaskById(3)).thenReturn(task);
         when(kanbanService.deleteTask(task))
                 .thenReturn("deleted");
 
@@ -118,7 +118,7 @@ class APIControllerTest {
 
     @Test
     void shouldReturn404WhenDeletingMissingTask() throws Exception {
-        when(kanbanService.getTaskByIndex(3)).thenReturn(null);
+        when(kanbanService.getTaskById(3)).thenReturn(null);
 
         mockMvc.perform(delete("/api/v1/tasks/3"))
                 .andExpect(status().isNotFound());
