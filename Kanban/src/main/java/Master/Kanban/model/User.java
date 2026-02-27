@@ -16,12 +16,13 @@ public class User {
 
     @Id
     @Column(name = "\"Token\"", nullable = false)
-    private long token;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "\"Username\"")
+    @Column(name = "\"Username\"", nullable = false, unique = true)
     private String username;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "index", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Task> tasks;
 }

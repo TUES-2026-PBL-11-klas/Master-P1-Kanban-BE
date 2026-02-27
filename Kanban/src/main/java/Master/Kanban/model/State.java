@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 public class State {
 
     @Id
-    @Column(name = "\"Id\"")
-    private int id;
+    @Column(name = "\"Id\"", nullable = false)
+    private Integer id;
 
-    @Column(name = "\"Name\"")
+    @Column(name = "\"Name\"", nullable = false, unique = true)
     private String name;
 
     @JsonIgnore

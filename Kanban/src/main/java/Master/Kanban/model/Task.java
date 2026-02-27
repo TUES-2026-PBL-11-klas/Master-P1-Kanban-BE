@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -14,11 +16,12 @@ public class Task {
 
     @Id
     @Column(name = "\"Position\"", nullable = false)
-    private int index;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "\"Token\"", nullable = false)
-    private User userToken;
+    private User user;
 
     @Column(name = "\"Deleted\"", nullable = false)
     private boolean deleted;
@@ -32,10 +35,10 @@ public class Task {
     @Column(name = "\"Priority\"", nullable = false)
     private int priority;
 
-    @ManyToOne(fetch = FetchType.EAGER) //probably best to ask if this is the best decisicion
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "\"State\"", nullable = false)
     private State state;
 
     @Column(name = "\"Time\"", nullable = false)
-    private String tszImplement; //not implemented
+    private LocalDateTime createdAt;
 }
